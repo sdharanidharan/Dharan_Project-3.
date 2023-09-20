@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Manager</title>
+</head>
+<script>
+document.addEventListener('DOMContentLoaded', async () => { await loadTasks();
+
+document.getElementById('addTask').addEventListener('click', addTaskToList);
+document.getElementById('taskList').addEventListener('click', handleTaskClick);
+});
+
+async function loadTasks() {
+let tasks = await getTasksFromStorage(); tasks.forEach(task => displayTask(task));
+}
+
+function displayTask(task) {
+let li = document.createElement('li'); li.textContent = task;
+li.setAttribute('data-task', task);	// For modification/deletion purposes
+
+let deleteBtn = document.createElement('button'); deleteBtn.textContent = 'Delete'; deleteBtn.classList.add('delete');
+
+li.appendChild(deleteBtn);
+document.getElementById('taskList').appendChild(li);
+}
+
+function handleTaskClick(e) {
+if (e.target.classList.contains('delete')) {
+let task = e.target.parentElement.getAttribute('data-task'); deleteTask(task);
+e.target.parentElement.remove();
+}
+}
+
+async function addTaskToList() {
+let task = document.getElementById('taskInput').value.trim(); if (task) {
+await saveTaskToStorage(task); displayTask(task); document.getElementById('taskInput').value = '';
+}
+}
+
+async function getTasksFromStorage() {
+let tasks = localStorage.getItem('tasks'); return tasks ? JSON.parse(tasks) : [];
+}
+
+async function saveTaskToStorage(task) {
+let tasks = await getTasksFromStorage(); tasks.push(task);
+localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+async function deleteTask(taskToDelete) { let tasks = await getTasksFromStorage();
+tasks = tasks.filter(task => task !== taskToDelete); localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+</script>
+
+<body>
+
+<h1>Task Manager</h1>
+<input type="text" id="taskInput" placeholder="Add your task here...">
+<button id="addTask">Add Task</button>
+
+<ul id="taskList"></ul>
+
+<script src="app.js"></script>
+</body>
+
+</html>
